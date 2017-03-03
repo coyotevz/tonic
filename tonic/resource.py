@@ -135,7 +135,8 @@ class ModelResource(with_metaclass(ModelResourceMeta, Resource)):
 
     @instances.POST(rel="create")
     def create(self, properties):
-        return "create"
+        item = self.manager.create(properties)
+        return item
 
     @Route.GET('/<int:id>', rel="self", attribute="instance")
     def read(self, id):

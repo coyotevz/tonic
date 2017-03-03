@@ -2,6 +2,7 @@
 
 from flask import current_app
 from flask_sqlalchemy import get_state
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import class_mapper
 from marshmallow_sqlalchemy import ModelSchema
 from .manager import RelationalManager
@@ -50,3 +51,21 @@ class SQLAlchemyManager(RelationalManager):
             order_clauses.append(column.desc() if reverse else column.asc())
 
         return query.order_by(*order_clauses)
+
+    def create(self, properties, commit=True):
+        item = self.model()
+
+        for key, value in properties.items():
+            setattr(item, key, value)
+
+        session = self._get_session()
+
+        try:
+            session.add(item)
+            if commit:
+                session.commit()
+        except IntegrityError as e:
+            session.rollback()
+            return None
+
+        return item

@@ -157,7 +157,8 @@ class Route(object):
 
         def view(*args, **kwargs):
             instance = resource()
-            kwargs.update(resource.manager.parse_request(request))
+            #kwargs.update(resource.manager.parse_request(request))
+            args += (resource.manager.parse_request(request),)
             response = view_func(instance, *args, **kwargs)
             if not self.format_response:
                 return response
