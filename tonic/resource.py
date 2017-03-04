@@ -133,6 +133,8 @@ class ModelResource(with_metaclass(ModelResourceMeta, Resource)):
     def instances(self, **kwargs):
         return self.manager.instances(**kwargs)
 
+    instances.request_schema = instances.response_schema = 'collection'
+
     @instances.POST(rel="create")
     def create(self, properties):
         item = self.manager.create(properties)
@@ -140,6 +142,7 @@ class ModelResource(with_metaclass(ModelResourceMeta, Resource)):
 
     @Route.GET('/<int:id>', rel="self", attribute="instance")
     def read(self, id):
+        return self.manager.read(id)
         return "read {}".format(id)
 
     @read.PATCH(rel="update")

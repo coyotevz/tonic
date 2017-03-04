@@ -63,6 +63,9 @@ class Route(object):
         self.view_func = view_func
         self.format_response = format_response
 
+        self.request_schema = None
+        self.response_schema = None
+
         self._related_routes = ()
 
         for method in HTTP_METHODS:
@@ -153,12 +156,18 @@ class Route(object):
         :param name: Flask view name
         :param tonic.Resource resource:
         """
+        request_schema = self.request_schema
+        response_schema = self.response_schema
         view_func = self.view_func
 
         def view(*args, **kwargs):
             instance = resource()
-            #kwargs.update(resource.manager.parse_request(request))
-            args += (resource.manager.parse_request(request),)
+            if request_schema == 'collection':
+                kwargs.update(resource.manager.parse_request(request))
+            else:
+                args += (resource.manager.parse_request(request),)
+
+            print("request:", args, kwargs)
             response = view_func(instance, *args, **kwargs)
             if not self.format_response:
                 return response
