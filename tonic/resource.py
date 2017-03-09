@@ -141,13 +141,15 @@ class ModelResource(with_metaclass(ModelResourceMeta, Resource)):
         return item
 
     @Route.GET('/<int:id>', rel="self", attribute="instance")
-    def read(self, id):
+    def read(self, id, **kwargs):
+        print("read({}, {})".format(kwargs, id))
         return self.manager.read(id)
-        return "read {}".format(id)
 
     @read.PATCH(rel="update")
     def update(self, properties, id):
-        return "update {}".format(id)
+        item = self.manager.read(id)
+        updated_item = self.manager.update(item, properties)
+        return updated_item
 
     @update.DELETE(rel="destroy")
     def destroy(self, id):

@@ -16,3 +16,11 @@ def unpack(value):
         pass
     return value, 200, {}
 
+
+def get_value(key, obj, default):
+    if hasattr(obj, '__getitem__'):
+        try:
+            return obj[key]
+        except (IndexError, TypeError, KeyError):
+            pass
+    return getattr(obj, key, default)

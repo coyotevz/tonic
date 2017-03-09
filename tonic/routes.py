@@ -6,6 +6,7 @@ from collections import OrderedDict
 import re
 
 from flask import request
+from webargs.flaskparser import parser
 
 
 HTTP_METHODS = ('GET', 'PUT', 'POST', 'PATCH', 'DELETE')
@@ -161,14 +162,17 @@ class Route(object):
         view_func = self.view_func
 
         def view(*args, **kwargs):
+            print("view ({}, {})".format(args, kwargs))
             instance = resource()
-            if request_schema == 'collection':
-                kwargs.update(resource.manager.parse_request(request))
-            else:
-                args += (resource.manager.parse_request(request),)
-
-            print("request:", args, kwargs)
+            schema = resource.manager.get_schema(strict=request.method in ['POST', 'PATCH'])
+            wargs = parser.parse(schema, request)
+            print("parsed wargs: {}".format(wargs))
+            #kwargs.update(wargs)
+            if wargs:
+                args += (wargs,)
+            print("new args:", args)
             response = view_func(instance, *args, **kwargs)
+
             if not self.format_response:
                 return response
             return resource.manager.format_response(response)

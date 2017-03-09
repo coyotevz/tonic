@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from marshmallow.utils import is_collection
+from webargs.flaskparser import parser
 
 class Manager(object):
 
@@ -27,6 +28,11 @@ class Manager(object):
         self.filters = {}
 
     # Override by implementors
+
+    @property
+    def schema(self):
+        return self.schema_class()
+
     def relation_instances(self, item, attribute, target_resource,
                            page=None, per_page=None):
         raise NotImplementedError()
@@ -82,7 +88,7 @@ class Manager(object):
 
     def format_response(self, response):
         many = is_collection(response)
-        return self.schema_class().dump(response, many=many).data
+        return self.schema.dump(response, many=many).data
 
 
 class RelationalManager(Manager):
